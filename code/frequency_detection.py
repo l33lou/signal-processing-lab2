@@ -8,6 +8,7 @@ from tools.fft import fft
 from tools.autocorrelation import autocorrelation
 from tools.levinson_durbin import levinson_durbin
 from tools.burg import burg
+from tools.burg import pisarenko
 
 
 #Splitting the signal into 10ms long frames
@@ -77,6 +78,7 @@ if __name__=="__main__":
     y1i, sri = frames[int(len(frames)//2)+20]
     #autocorrelation(y1i, sri, True)
     #levinson_durbin(y1i, 26, sri, True)
+    #pisarenko(y1i, )
 
     df1 = traitement(y1, sr1, 12, 0.01, 10E-3, 20, 26, 'fft')
     df2 = traitement(y1, sr1, 12, 0.01, 10E-3, 20, 26, 'autocorrelation')
