@@ -35,14 +35,23 @@ hold off;
 import numpy as np
 import matplotlib.pyplot as plt
 
-def levinson_durbin(x, p, fe):
+
+def levinson_durbin(x, p, fe, energy_threshold, visualize=False):
+    #Filtration of silence noise 
+    rms = np.sqrt(np.mean(x**2))
+    if rms < energy_threshold:
+        return np.nan
+
+    #Windowing
+    xw =  x*np.hanning(len(x))
+        
     #biased autocorrelation of x 
-    autocorr_x = np.correlate(x, x, 'full')/len(x)
-    center = len(x)-1
+    autocorr_x = np.correlate(xw, xw, 'full')/len(xw)
+    center = len(xw)-1
     acf = autocorr_x[center:center+p+2] #keeping only the positive part
 
     acf[0] = np.real(acf[0]) #levinson-durbin requires c(0)==c*(0)
-    ref = np.zeros(p, dtypes=complex)
+    ref = np.zeros(p, dtype=complex)
     g = -acf[1]/acf[0]
     a = np.array([g])
     sigma2 = np.real( ( 1 - g*np.conjugate(g)) * acf[0] )
@@ -57,19 +66,30 @@ def levinson_durbin(x, p, fe):
 
     a = np.insert(a, 0, 1.0)
 
-    #Power spectral density
+    #Positive frequencies restricted to musical pitch range: 80 Hz to 1500 Hz
+    fmin = 80.0
+    fmax = 1500.0
+    freq = np.arange(fmin, fmax + 1, 1)  # Or np.arange(0, fe / 2 + 1, 1)
+
+    #Power spectral density 
     interm2 = -1j * 2 * np.pi / fe * np.arange(1, p + 1)
-    freq = np.arange(-fe / 2, fe / 2 + 10, 10)
-    A_matrix = np.exp(np.outer(f, interm2))
+    A_matrix = np.exp(np.outer(freq, interm2))
     interm = 1.0 + np.dot(A_matrix, a[1:])
 
-    mydsp = np.real(sigma2/interm*np.conjugate(interm))
+    mydsp = sigma2 / (np.abs(interm) ** 2)
+
+    # 4. Direct peak finding without slicing
+    arg_f0 = np.argmax(mydsp)
+    f0 = freq[arg_f0]
+
+    if visualize :
         
-    plt.plot(freq, mydsp)
-    plt.grid(True)
-    plt.xlabel('Frequency (Hz)')
-    plt.ylabel('Power spectral density')
-    plt.title('Levinson-Durbin')
-    plt.show()
+        plt.plot(freq, mydsp)
+        plt.plot(f0, mydsp[arg_f0], 'x')
+        plt.grid(True)
+        plt.xlabel('Frequency (Hz)')
+        plt.ylabel('Power spectral density')
+        plt.title('Levinson-Durbin')
+        plt.show()
     
-    return a, sigma2, ref, freq, mydsp
+    return f0
