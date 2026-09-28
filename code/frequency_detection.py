@@ -8,7 +8,9 @@ from tools.fft import fft
 from tools.autocorrelation import autocorrelation
 from tools.levinson_durbin import levinson_durbin
 from tools.burg import burg
-from tools.burg import pisarenko
+#from tools.burg import pisarenko
+from tools.tempo import tempo_detection
+from tools.note_detection import add_notes
 
 
 #Splitting the signal into 10ms long frames
@@ -70,6 +72,13 @@ def df_to_tabularx(df, column_width='\\textwidth'):
     
     print(latex_tabularx)
 
+def load_verite(filename):
+    df = pd.read_csv('../audios/'+filename, sep=r"\s+", header=None, names=["Start time (s)", "End time (s)", "Frequency (Hz)"])
+    print(filename)
+    print(df)
+
+    return df
+
 if __name__=="__main__":
     y1, sr1 = librosa.load('../audios/fluteircam.wav')   
     y2, sr2 = librosa.load('../audios/voiceP.wav')
@@ -80,13 +89,20 @@ if __name__=="__main__":
     #levinson_durbin(y1i, 26, sri, True)
     #pisarenko(y1i, )
 
-    df1 = traitement(y1, sr1, 12, 0.01, 10E-3, 20, 26, 'fft')
-    df2 = traitement(y1, sr1, 12, 0.01, 10E-3, 20, 26, 'autocorrelation')
-    df3 = traitement(y1, sr1, 12, 0.01, 10E-3, 20, 200, 'levinson durbin')
-    df4 = traitement(y1, sr1, 12, 0.01, 10E-3, 20, 26, 'burg')
+    #df1 = traitement(y1, sr1, 12, 0.01, 10E-3, 20, 26, 'fft')
+    #df2 = traitement(y1, sr1, 12, 0.01, 10E-3, 20, 26, 'autocorrelation')
+    #df3 = traitement(y1, sr1, 12, 0.01, 10E-3, 20, 200, 'levinson durbin')
+    #df4 = traitement(y1, sr1, 12, 0.01, 10E-3, 20, 26, 'burg')
 
     #tab1 = df_to_tabularx(df1)
     #tab2 = df_to_tabularx(df2)
+
+    df_flute = load_verite('veriteterrainflute.txt')
+    df_voice = load_verite('veriteterrainvoiceP.txt')
+    
+    df_flute2 = tempo_detection(df_flute)
+    add_notes(df_flute2)
+
 
 
 
