@@ -3,7 +3,7 @@ import scipy
 import matplotlib.pyplot as plt
 
 #fft method on y signal sampled at rate sr 
-def fft(y, sr, n, energy_threshold, visualize=False) :
+def fft(y, sr, n, energy_threshold, visualize=False, vals=False) :
 
     T = np.linspace(0, len(y)/sr, len(y))
 
@@ -44,5 +44,8 @@ def fft(y, sr, n, energy_threshold, visualize=False) :
 
         plt.tight_layout()
         plt.show()
+
+    if vals :
+        return T, freq, mag
 
     return f0

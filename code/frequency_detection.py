@@ -11,13 +11,7 @@ from tools.burg import burg
 #from tools.burg import pisarenko
 from tools.tempo import tempo_detection
 from tools.note_detection import add_notes
-
-
-#Splitting the signal into 10ms long frames
-def framing(y, sr, Tf):
-    Nf = int(sr*Tf)
-    frames = [ (y[i*Nf:(i+1)*Nf], sr) for i in range(len(y)//Nf) ]
-    return frames
+from tools.framing import framing
 
 #Main script
 def traitement(s, fe, n, energy_threshold, Tf, frequency_tolerance, p, method='autocorrelation'):
