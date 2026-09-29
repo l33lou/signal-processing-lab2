@@ -12,7 +12,7 @@ def generate_sound(f0, sr, Tf, namefile, beta=0, fv=0):
     Time = np.arange(0, Tf, 1/sr)
     S = np.zeros_like(Time)
     for j in range(1, 5):
-        S += (1/(j**2))*np.sin(2*np.pi*(j*f0)*Time + beta*np.sin(2*np.pi*fv*Time))
+        S += (1/(j**2))*np.sin(2*np.pi*(j*f0)*Time + j*beta*np.sin(2*np.pi*fv*Time))
         
     sf.write('../audios/'+namefile+'.wav', S, sr)
 
@@ -65,7 +65,7 @@ if __name__=="__main__":
     Tf = 1 #s
     
     time, s = generate_sound(f0, sr, Tf, 'test3')
-    sr = time[1]-time[0]
+    sr3 = int(time[1]-time[0])
     #fft(s, sr, 12, 0.01, visualize=True)
     #cascading_filtration(time, s, n=12, threshold=0.03)
     flute, srf = librosa.load('../audios/fluteircam.wav')
@@ -73,3 +73,7 @@ if __name__=="__main__":
     #spectrogram(flute, srf)
     #spectrogram(voice, srp)
     #spectrogram(s, sr)
+    timev, sv = generate_sound(f0, sr, Tf, 'sig_harmonique_vibrato', 20, 5)
+    #spectrogram(sv, sr, nperseg = 256, overlap_ratio = 0.92, nfft = 4096)
+
+    
