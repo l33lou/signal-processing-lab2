@@ -3,22 +3,22 @@ import scipy
 import matplotlib.pyplot as plt
 
 #fft method on y signal sampled at rate sr 
-def fft(y, sr, n, energy_threshold, visualize=False, vals=False) :
+def fft(y, sr, energy_threshold, visualize=False, vals=False) :
 
     T = np.linspace(0, len(y)/sr, len(y))
 
     #Filtration of silence noise 
-    rms = np.sqrt(np.mean(y**2))
-    if rms < energy_threshold:
-        return np.nan
+    #rms = np.sqrt(np.mean(y**2))
+    #if rms < energy_threshold:
+    #    return np.nan
     
     #Hanning windowing to reduce leakage
     windowed = y * np.hanning(len(y))
 
     #FFT
-    fourier = scipy.fft.rfft(windowed, 2**n)
+    fourier = scipy.fft.rfft(windowed)
     mag = np.abs(fourier)
-    freq = scipy.fft.rfftfreq(2**n, 1/sr)
+    freq = scipy.fft.rfftfreq(n=len(windowed), d=1/sr)
 
     #Fundamental frequency
     max_index = np.argmax(mag)

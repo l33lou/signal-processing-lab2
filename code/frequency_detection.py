@@ -14,7 +14,7 @@ from tools.note_detection import add_notes
 from tools.framing import framing
 
 #Main script
-def traitement(s, fe, n, energy_threshold, Tf, frequency_tolerance, p, method='autocorrelation'):
+def traitement(s, fe, energy_threshold, Tf, frequency_tolerance, p, method='autocorrelation'):
     t0 = time.time()
 
     frames = framing(s, fe, Tf)
@@ -24,7 +24,7 @@ def traitement(s, fe, n, energy_threshold, Tf, frequency_tolerance, p, method='a
         t_start = round(k*Tf, 2)
         t_end = round((k+1)*Tf, 2)
         if method == 'fft':
-            f0 = fft(y, sr, n, energy_threshold)
+            f0 = fft(y, sr, energy_threshold)
         elif method == 'autocorrelation':
             f0 = autocorrelation(y, sr, energy_threshold)
         elif method =='levinson durbin':
@@ -73,29 +73,43 @@ def load_verite(filename):
 
     return df
 
+def comparison(df, df_grounddata):
+    df['Expected frequency (Hz)'] = df_grounddata['Frequency (Hz)']
+    df['Accuracy'] = 1-(np.abs(df_grounddata['Frequency (Hz)'] - df['Frequency (Hz)'])/df_grounddata['Frequency (Hz)'])
+    print(df)
+    return df
+
 if __name__=="__main__":
+    df_flute = load_verite('veriteterrainflute.txt')
+    df_voice = load_verite('veriteterrainvoiceP.txt')
+    #tabg1 = df_to_tabularx(df_flute)
+    #tabg2 = df_to_tabularx(df_voice)
+
     y1, sr1 = librosa.load('../audios/fluteircam.wav')   
     y2, sr2 = librosa.load('../audios/voiceP.wav')
 
-    frames = framing(y1, sr1, 10E-3)
-    y1i, sri = frames[int(len(frames)//2)+20]
+    df1 = traitement(y1, sr1, 0.01, 10E-3, 20, 26, 'fft')
+    df2 = traitement(y2, sr2, 0.01, 10E-3, 20, 26, 'fft')
+    tab1 = df_to_tabularx(df1)
+    tab2 = df_to_tabularx(df2)
+    comp1 = comparison(df1, df_flute)
+    comp2 = comparison(df2, df_voice)
+
+    #frames = framing(y1, sr1, 10E-3)
+    #y1i, sri = frames[int(len(frames)//2)+20]
     #autocorrelation(y1i, sri, True)
     #levinson_durbin(y1i, 26, sri, True)
     #pisarenko(y1i, )
 
-    #df1 = traitement(y1, sr1, 12, 0.01, 10E-3, 20, 26, 'fft')
-    #df2 = traitement(y1, sr1, 12, 0.01, 10E-3, 20, 26, 'autocorrelation')
-    #df3 = traitement(y1, sr1, 12, 0.01, 10E-3, 20, 200, 'levinson durbin')
-    #df4 = traitement(y1, sr1, 12, 0.01, 10E-3, 20, 26, 'burg')
+    #df1 = traitement(y1, sr1, 0.01, 10E-3, 20, 26, 'fft')
+    #df2 = traitement(y1, sr1, 0.01, 10E-3, 20, 26, 'autocorrelation')
+    #df3 = traitement(y1, sr1, 0.01, 10E-3, 20, 200, 'levinson durbin')
+    #df4 = traitement(y1, sr1, 0.01, 10E-3, 20, 26, 'burg')
+   
+    #df_flute2 = tempo_detection(df_flute)
+    #add_notes(df_flute2)
 
-    #tab1 = df_to_tabularx(df1)
-    #tab2 = df_to_tabularx(df2)
 
-    df_flute = load_verite('veriteterrainflute.txt')
-    df_voice = load_verite('veriteterrainvoiceP.txt')
-    
-    df_flute2 = tempo_detection(df_flute)
-    add_notes(df_flute2)
 
 
 
