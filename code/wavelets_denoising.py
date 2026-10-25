@@ -1,23 +1,25 @@
-from tools.denoising import (generate_signal, 
-                             wavelet_decompose, 
-                             wavelet_denoise, 
-                             wavelet_reconstruct, 
-                             monte_carlo_optimal_threshold )
-from tools.denoising_visualisation import ( plot_scalograms_comparison, 
-                                           plot_temporal_signals, 
-                                           plot_coefficients_histogram, 
-                                           optimal_threshold_calculation, 
-                                           plot_denoising_ratio_optimization )
+from tools.denoising import (
+    generate_signal, 
+    wavelet_decompose, 
+    wavelet_denoise, 
+    wavelet_reconstruct, 
+    monte_carlo_optimal_threshold )
+from tools.denoising_visualisation import ( 
+    plot_scalograms_comparison, 
+    plot_temporal_signals, 
+    plot_coefficients_histogram, 
+    optimal_threshold_calculation, 
+    plot_denoising_ratio_optimization )
 
 ### Execution of wavelet decomposition, denoising, and reconstruction               
 
-# Generating noisy signal
 F0 = 500    
 FS = 8000 
 DURATION = 1.5
 NOISE_LEVEL = 0.4
 THRESHOLD = 0.45
 
+# Generating noisy signal
 time, clean, noisy = generate_signal(f0=F0, fs=FS, duration=DURATION, noise_level=NOISE_LEVEL)
 
 # Applying wavelet decomposition to the noisy signal
