@@ -35,7 +35,7 @@ Decomposition of a harmonic multi-tone signal into individual single-tone subban
 
 ### Audio Sample
 
-- **Harmonic signal with vibrato:** [`sig_harmonique_vibrato.wav`](audios/sig_harmonique_vibrato.wav) — <a href="https://cdn.jsdelivr.net/gh/l33lou/signal-processing-lab2@main/audios/sig_harmonique_vibrato.wav" target="_blank">Play audio in new tab</a>
+- **Harmonic signal with vibrato:** [`sig_harmonique_vibrato.wav`](audios/sig_harmonique_vibrato.wav) — [Listen](https://cdn.jsdelivr.net/gh/l33lou/signal-processing-lab2@main/audios/sig_harmonique_vibrato.wav) *(Ctrl/Cmd + Click to open in new tab)*
 
 ### Visualization
 
