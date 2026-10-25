@@ -13,8 +13,8 @@ Estimation of fundamental frequency across audio frames on speech (`voiceP.wav`)
 
 ### Audio Samples
 
-- **Voice:** [`voiceP.wav`](audios/voiceP.wav) — [Play Audio](https://raw.githubusercontent.com/l33lou/signal-processing-lab2/main/audios/voiceP.wav)
-- **Flute:** [`fluteircam.wav`](audios/fluteircam.wav) — [Play Audio](https://raw.githubusercontent.com/l33lou/signal-processing-lab2/main/audios/fluteircam.wav)
+- **Voice:** [`voiceP.wav`](audios/voiceP.wav) — <a href="https://cdn.jsdelivr.net/gh/l33lou/signal-processing-lab2@main/audios/voiceP.wav" target="_blank">Play audio in new tab</a>
+- **Flute:** [`fluteircam.wav`](audios/fluteircam.wav) — <a href="https://cdn.jsdelivr.net/gh/l33lou/signal-processing-lab2@main/audios/fluteircam.wav" target="_blank">Play audio in new tab</a>
 
 ### Visualization
 
@@ -33,7 +33,7 @@ Decomposition of a harmonic multi-tone signal into individual single-tone subban
 
 ### Audio Sample
 
-- **Harmonic signal with vibrato:** [`sig_harmonique_vibrato.wav`](audios/sig_harmonique_vibrato.wav) — [Play Audio](https://raw.githubusercontent.com/l33lou/signal-processing-lab2/main/audios/sig_harmonique_vibrato.wav)
+- **Harmonic signal with vibrato:** [`sig_harmonique_vibrato.wav`](audios/sig_harmonique_vibrato.wav) — <a href="https://cdn.jsdelivr.net/gh/l33lou/signal-processing-lab2@main/audios/sig_harmonique_vibrato.wav" target="_blank">Play audio in new tab</a>
 
 ### Visualization
 
