@@ -39,8 +39,8 @@ if __name__ == '__main__':
     x_omp, time_omp = orthogonal_matching_pursuit(y_audio, D, max_iter=MAX_ATOMS, mode='chol')
     y_omp = D @ x_omp
 
-    # Basis Pursuit (BP / Lasso)
-    x_bp, time_bp = basis_pursuit(y_audio, D, alpha=0.01)
+    # Basis Pursuit (BP / Lasso via FISTA)
+    x_bp, time_bp = basis_pursuit(y_audio, D, method='fista', alpha=0.05)
     y_bp = D @ x_bp
 
     # --- Métriques d'évaluation ---
@@ -52,9 +52,9 @@ if __name__ == '__main__':
         [(x_mp, time_mp, y_mp), (x_omp, time_omp, y_omp), (x_bp, time_bp, y_bp)]
     ):
         snr = compute_snr(y_audio, y_sol)
-        cr, k_nonzeros = compute_compression_ratio(x_sol, threshold=1e-2)
+        cr, k_nonzeros = compute_compression_ratio(x_sol, original_len=FRAME_LEN, threshold=1e-3)
         metrics[name] = {'snr': snr, 'time': t_sol, 'cr': cr, 'k': k_nonzeros}
-        print(f"[{name}] SNR : {snr:.2f} dB | Temps : {t_sol:.4f} s | Atomes non nuls : {k_nonzeros}/{M} | CR : {cr:.1f}x")
+        print(f"[{name}] SNR : {snr:.2f} dB | Temps : {t_sol:.4f} s | Atomes non nuls : {k_nonzeros}/{M} | CR (N/K) : {cr:.1f}x")
 
     # --- Comparaison des solveurs OMP ---
     omp_solvers_time = {}

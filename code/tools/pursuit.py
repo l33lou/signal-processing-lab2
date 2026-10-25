@@ -2,7 +2,7 @@ import time
 import numpy as np
 import pywt
 from scipy.fftpack import dct
-from scipy.optimize import minimize
+from scipy.optimize import linprog
 
 
 # =========================================================================
@@ -12,9 +12,9 @@ from scipy.optimize import minimize
 def build_overcomplete_dictionary(frame_len=256):
     """
     Constructs an overcomplete dictionary D in R^(N x M) by concatenating:
-    1. Multiscale DCT bases (Short & Long resolution)
-    2. Gabor / STFT atoms (Hanning-windowed sine/cosine tones)
-    3. Discrete Wavelet Transform atoms ('db4' and 'sym4')
+    1. DCT basis (N x N orthogonal)
+    2. Multiscale Gabor / STFT atoms (Hanning-windowed sine/cosine tones with time shifts)
+    3. Discrete Wavelet Transform atoms ('db4' and 'sym4' across all multiscale subbands)
     """
     N = frame_len
     atoms = []
@@ -24,36 +24,34 @@ def build_overcomplete_dictionary(frame_len=256):
     for i in range(N):
         atoms.append(dct(dct_basis[i], type=2, norm='ortho'))
 
-    # B. Gabor / Windowed Fourier Atoms (Multiscale Hanning windows)
+    # B. Multiscale Gabor Atoms (time-shifted Hanning windows with modulated tones)
     t = np.arange(N)
-    for win_len in [N // 2, N]:
+    freqs = np.linspace(0.02, 0.48, 24)
+    for win_len in [N // 4, N // 2, N]:
         win = np.hanning(win_len)
-        pad_len = N - win_len
-        win_padded = np.pad(win, (0, pad_len), mode='constant')
-        
-        # Modulated sines and cosines
-        freqs = np.linspace(0, 0.5, 16)
-        for f in freqs:
-            atoms.append(win_padded * np.cos(2 * np.pi * f * t))
-            atoms.append(win_padded * np.sin(2 * np.pi * f * t))
+        step = win_len // 2 if win_len < N else N
+        for shift in range(0, N - win_len + 1, step):
+            win_padded = np.pad(win, (shift, N - win_len - shift), mode='constant')
+            for f in freqs:
+                atoms.append(win_padded * np.cos(2 * np.pi * f * t))
+                atoms.append(win_padded * np.sin(2 * np.pi * f * t))
 
-    # C. Wavelet Frame Atoms ('db4' & 'sym4' at multiple levels)
+    # C. Multiscale Wavelet Frame Atoms ('db4' and 'sym4')
     for family in ['db4', 'sym4']:
         try:
             w = pywt.Wavelet(family)
             max_lev = pywt.dwt_max_level(N, w.dec_len)
-            for lev in range(1, max_lev + 1):
-                coeffs = pywt.wavedec(np.zeros(N), family, level=lev)
-                for band_idx in range(len(coeffs)):
-                    for coef_i in range(len(coeffs[band_idx])):
-                        c_dummy = [np.zeros_like(c) for c in coeffs]
-                        c_dummy[band_idx][coef_i] = 1.0
-                        atom = pywt.waverec(c_dummy, family)[:N]
-                        atoms.append(atom)
+            coeffs_template = pywt.wavedec(np.zeros(N), family, level=max_lev)
+            for band_idx in range(len(coeffs_template)):
+                for coef_i in range(len(coeffs_template[band_idx])):
+                    c_dummy = [np.zeros_like(c) for c in coeffs_template]
+                    c_dummy[band_idx][coef_i] = 1.0
+                    atom = pywt.waverec(c_dummy, family)[:N]
+                    atoms.append(atom)
         except Exception:
             pass
 
-    # Assemble and normalize all dictionary atoms (L2 normalization)
+    # Assemble and normalize all dictionary atoms (unit L2 normalization)
     D = np.column_stack(atoms)
     norms = np.linalg.norm(D, axis=0)
     norms[norms == 0] = 1.0
@@ -78,7 +76,6 @@ def matching_pursuit(y, D, max_iter=30, tol=1e-4):
     for _ in range(max_iter):
         if np.linalg.norm(residual) < tol:
             break
-        # Correlations with residual
         correlations = D.T @ residual
         best_idx = np.argmax(np.abs(correlations))
         coeff = correlations[best_idx]
@@ -94,14 +91,17 @@ def matching_pursuit(y, D, max_iter=30, tol=1e-4):
 def orthogonal_matching_pursuit(y, D, max_iter=30, mode='chol', tol=1e-4):
     """
     Orthogonal Matching Pursuit (OMP): Greedy selection with orthogonal projection.
-    Supports 3 update algorithms: 'standard' (Least-Squares), 'qr' (QR decomposition),
-    and 'chol' (Cholesky factorization update).
+    Supports 3 update algorithms:
+    - 'standard': Least-Squares via lstsq
+    - 'qr': QR decomposition update
+    - 'chol': Cholesky factorization update on the Gram matrix
     """
     t0 = time.perf_counter()
     N, M = D.shape
     residual = y.copy()
     selected_indices = []
     x = np.zeros(M)
+    gamma = np.array([])
 
     for k in range(max_iter):
         if np.linalg.norm(residual) < tol:
@@ -122,39 +122,61 @@ def orthogonal_matching_pursuit(y, D, max_iter=30, mode='chol', tol=1e-4):
         elif mode == 'chol':
             # Cholesky on Gram matrix (D_sub.T @ D_sub)
             Gram = D_sub.T @ D_sub
-            L = np.linalg.cholesky(Gram + 1e-10 * np.eye(len(selected_indices)))
-            z = np.linalg.solve(L, D_sub.T @ y)
-            gamma = np.linalg.solve(L.T, z)
+            try:
+                L = np.linalg.cholesky(Gram + 1e-10 * np.eye(len(selected_indices)))
+                z = np.linalg.solve(L, D_sub.T @ y)
+                gamma = np.linalg.solve(L.T, z)
+            except np.linalg.LinAlgError:
+                gamma, _, _, _ = np.linalg.lstsq(D_sub, y, rcond=None)
         else:  # 'standard' Least-Squares
             gamma, _, _, _ = np.linalg.lstsq(D_sub, y, rcond=None)
 
         # Residual update
         residual = y - D_sub @ gamma
 
-    x[selected_indices] = gamma
+    if len(selected_indices) > 0 and len(gamma) > 0:
+        x[selected_indices] = gamma
+
     runtime = time.perf_counter() - t0
     return x, runtime
 
 
-def basis_pursuit(y, D, alpha=0.01):
+def basis_pursuit(y, D, method='fista', alpha=0.05, max_iter=250):
     """
-    Basis Pursuit (BP) / Lasso: Convex L1-minimization via L-BFGS-B optimization.
-    Solves min_x 0.5 * ||y - D x||_2^2 + alpha * ||x||_1
+    Basis Pursuit (BP) / Lasso:
+    - method='fista': Fast Iterative Shrinkage-Thresholding Algorithm (Beck & Teboulle 2009).
+      Solves min_x 0.5 * ||y - D x||_2^2 + alpha * ||x||_1 via exact soft-thresholding.
+    - method='lp': Exact equality-constrained Basis Pursuit via Linear Programming (HiGHS).
+      Solves min_x ||x||_1  s.t.  D x = y
     """
     t0 = time.perf_counter()
     N, M = D.shape
 
-    def objective(x):
-        res = y - D @ x
-        return 0.5 * np.dot(res, res) + alpha * np.sum(np.abs(x))
+    if method == 'lp':
+        # Exact Basis Pursuit via HiGHS LP solver
+        c = np.ones(2 * M)
+        A_eq = np.hstack([D, -D])
+        res = linprog(c, A_eq=A_eq, b_eq=y, bounds=(0, None), method='highs')
+        if res.success:
+            x = res.x[:M] - res.x[M:]
+        else:
+            x = np.zeros(M)
+    else:
+        # FISTA for Lasso / BPDN with soft-thresholding
+        L = np.linalg.norm(D, 2) ** 2
+        x = np.zeros(M)
+        z = x.copy()
+        t_f = 1.0
 
-    def gradient(x):
-        res = y - D @ x
-        return -D.T @ res + alpha * np.sign(x)
-
-    x0 = np.zeros(M)
-    res = minimize(objective, x0, jac=gradient, method='L-BFGS-B', options={'maxiter': 100})
-    x = res.x
+        for _ in range(max_iter):
+            grad = D.T @ (D @ z - y)
+            step = z - grad / L
+            # Soft-thresholding operator S_(alpha/L)
+            x_next = np.sign(step) * np.maximum(np.abs(step) - alpha / L, 0.0)
+            t_next = (1.0 + np.sqrt(1.0 + 4.0 * t_f ** 2)) / 2.0
+            z = x_next + ((t_f - 1.0) / t_next) * (x_next - x)
+            x = x_next
+            t_f = t_next
 
     runtime = time.perf_counter() - t0
     return x, runtime
@@ -174,10 +196,16 @@ def compute_snr(y, y_rec):
     return 10 * np.log10(pow_sig / pow_noise)
 
 
-def compute_compression_ratio(x, threshold=1e-3):
-    """Computes Compression Ratio = Total Atoms / Non-zero Atoms."""
+def compute_compression_ratio(x, original_len=None, threshold=1e-3):
+    """
+    Computes Signal Compression Ratio = Signal Length N / Non-zero Atoms K.
+    If original_len is not specified, defaults to len(x).
+    """
     k = np.sum(np.abs(x) > threshold)
     if k == 0:
         return 1.0, 0
-    cr = len(x) / k
+    ref_len = original_len if original_len is not None else len(x)
+    cr = ref_len / k
+    return cr, k
+
     return cr, k
