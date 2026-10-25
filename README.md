@@ -13,8 +13,10 @@ Estimation of fundamental frequency across audio frames on speech (`voiceP.wav`)
 
 ### Audio Samples
 
-- **Voice:** [`voiceP.wav`](audios/voiceP.wav) — <a href="https://cdn.jsdelivr.net/gh/l33lou/signal-processing-lab2@main/audios/voiceP.wav" target="_blank">Play audio in new tab</a>
-- **Flute:** [`fluteircam.wav`](audios/fluteircam.wav) — <a href="https://cdn.jsdelivr.net/gh/l33lou/signal-processing-lab2@main/audios/fluteircam.wav" target="_blank">Play audio in new tab</a>
+### Original vs. Compressed Audio
+
+* **Voice:** [`voiceP.wav`](audios/voiceP.wav) — [Listen](https://cdn.jsdelivr.net/gh/l33lou/signal-processing-lab2@main/audios/voiceP.wav) *(Ctrl/Cmd + Click to open in new tab)*
+* **Flute:** [`fluteircam.wav`](audios/fluteircam.wav) — [Listen](https://cdn.jsdelivr.net/gh/l33lou/signal-processing-lab2@main/audios/fluteircam.wav) *(Ctrl/Cmd + Click to open in new tab)*
 
 ### Visualization
 
