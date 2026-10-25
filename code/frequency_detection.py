@@ -32,7 +32,7 @@ def traitement(s, fe, energy_threshold, Tf, frequency_tolerance, p, method='auto
         elif method =='burg':
             f0 = burg(y, p, sr, energy_threshold)
         else:
-            raise ValueError("Invalid method : please choose either 'fft' or 'autocorrelation'.")
+            raise ValueError("Invalid method'.")
 
         if not np.isnan(f0):
             if len(T) == 0 or not np.isclose(f0, T[-1][2], atol=frequency_tolerance):

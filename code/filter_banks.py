@@ -7,17 +7,7 @@ import librosa
 from tools.filtrepython import apply_filter
 from tools.fft import fft
 from tools.spectrogram import spectrogram
-
-def generate_sound(f0, sr, Tf, namefile, beta=0, fv=0):
-    Time = np.arange(0, Tf, 1/sr)
-    S = np.zeros_like(Time)
-    for j in range(1, 5):
-        S += (1/(j**2))*np.sin(2*np.pi*(j*f0)*Time + j*beta*np.sin(2*np.pi*fv*Time))
-        
-    sf.write('../audios/'+namefile+'.wav', S, sr)
-
-    return Time, S
-
+from tools.generate_sound import generate_sound
 
 def single_tuned(s, n, threshold):
 
