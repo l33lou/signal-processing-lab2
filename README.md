@@ -1,7 +1,8 @@
 # Signal Processing Lab 2: Advanced Spectral Analysis
 
-This project covers four core topics: **pitch detection**, **filter bank decomposition**, **wavelet denoising** and **source separation**, and s**parse audio compression** using pursuit algorithms.
+This project covers four core topics: **pitch detection**, **filter bank decomposition**, **wavelet denoising** and **source separation**, and **sparse audio compression** using pursuit algorithms.
 
+---
 
 ## 1. Fundamental Frequency Detection (f0)
 
@@ -12,17 +13,8 @@ Estimation of fundamental frequency across audio frames on speech (`voiceP.wav`)
 
 ### Audio Samples
 
-**Voice (`voiceP.wav`):**  
-<audio controls>
-  <source src="audios/voiceP.wav" type="audio/wav">
-  Your browser does not support the audio element.
-</audio>
-
-**Flute (`fluteircam.wav`):**  
-<audio controls>
-  <source src="audios/fluteircam.wav" type="audio/wav">
-  Your browser does not support the audio element.
-</audio>
+- **Voice:** [`voiceP.wav`](audios/voiceP.wav) — [Play Audio](https://raw.githubusercontent.com/l33lou/signal-processing-lab2/main/audios/voiceP.wav)
+- **Flute:** [`fluteircam.wav`](audios/fluteircam.wav) — [Play Audio](https://raw.githubusercontent.com/l33lou/signal-processing-lab2/main/audios/fluteircam.wav)
 
 ### Visualization
 
@@ -30,6 +22,7 @@ Estimation of fundamental frequency across audio frames on speech (`voiceP.wav`)
 
 *Figure 1: Frame-by-frame FFT spectrum and estimated fundamental frequency f0 on speech.*
 
+---
 
 ## 2. Filter Banks and Subband Decomposition
 
@@ -40,11 +33,7 @@ Decomposition of a harmonic multi-tone signal into individual single-tone subban
 
 ### Audio Sample
 
-**Harmonic signal with vibrato:**  
-<audio controls>
-  <source src="audios/sig_harmonique_vibrato.wav" type="audio/wav">
-  Your browser does not support the audio element.
-</audio>
+- **Harmonic signal with vibrato:** [`sig_harmonique_vibrato.wav`](audios/sig_harmonique_vibrato.wav) — [Play Audio](https://raw.githubusercontent.com/l33lou/signal-processing-lab2/main/audios/sig_harmonique_vibrato.wav)
 
 ### Visualization
 
@@ -65,6 +54,8 @@ Multiresolution analysis using Discrete Wavelet Transforms (DWT) for signal enha
 ![Wavelet Denoising Comparison](report/images/wavelet_denoising.png)
 
 *Figure 3: Wavelet denoising comparison showing clean, noisy (SNR = 7.9 dB), and reconstructed signal (SNR = 17.6 dB).*
+
+---
 
 ## 4. Sparse Signal Compression (Pursuit Algorithms)
 
@@ -144,4 +135,3 @@ pip install numpy scipy matplotlib PyWavelets
   ```bash
   python3 code/filter_banks.py
   ```
-
