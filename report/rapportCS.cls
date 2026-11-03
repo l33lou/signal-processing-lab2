@@ -13,9 +13,11 @@
 \RequirePackage[justification=centering]{caption} %Pour les légendes centralisées
 \RequirePackage{subcaption}
 \RequirePackage{wallpaper}
-\RequirePackage{nomencl}
-%\makenomenclature
+%\RequirePackage{nomencl}
+%%\makenomenclature
 \RequirePackage{fancyhdr}
+\RequirePackage{tabularx}
+
 %\pagestyle{fancy}
 %\fancyheadoffset{1cm}
 \setlength{\headheight}{2cm}
@@ -43,7 +45,7 @@
 \newcommand{\dates}[1]{\renewcommand{\dates}{#1}}
 
 \newcommand{\fairemarges}{
-\makenomenclature
+%\makenomenclature
 \pagestyle{fancy}
 \fancyheadoffset{0.5cm}
 
